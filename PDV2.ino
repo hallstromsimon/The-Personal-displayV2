@@ -5,6 +5,7 @@
 
 long oldMillis = 0;
 int scrollDownFlag = 0;
+int scrollUpFlag = 0;
 
 #define OLED_RESET LED_BUILTIN
 Adafruit_SSD1306 display(OLED_RESET);
@@ -20,6 +21,7 @@ int code[] = {158,166,224,76}; //This is the stored UID
 int code1[] = {158,166,224,78}; //This is the stored UID
 int codeRead = 0;
 String uidString;
+int scroll = 0;
 void setup() {
   oldMillis = millis();
   Serial.begin(9600);
@@ -40,14 +42,17 @@ void setup() {
 }
 
 void loop() {
-  if(millis()-oldMillis >1000){
+  if(millis()-oldMillis >200){
     Serial.println("timer");
     oldMillis = millis();
     int value = analogRead(A0);
     Serial.println(value);
 
-    if(value > 1000 && !scrollDownFlag){
+    if(value > 900 && !scrollDownFlag){
       scrollDownFlag = 1;
+    }
+       if(value < 100 && !scrollUpFlag){
+      scrollUpFlag = 1;
     }
     //digitalWrite(LED_BUILTIN, digitalRead(LED_BUILTIN)^1);
   }
@@ -55,14 +60,21 @@ void loop() {
   {
       readRFID();
   }
-  if(scrollDownFlag){
-
+  if(scrollDownFlag || scrollUpFlag){
+    if(scrollDownFlag){
+      scroll++;
+    }
+    else{
+      scroll--;
+    }  
     clearUID();
-    printUID(20);
+    printUID(scroll*10);
     scrollDownFlag = 0;
+    scrollUpFlag = 0;
   }
-  delay(100);
-
+    delay(100);
+  
+   
 }
 
 void readRFID()
@@ -127,12 +139,8 @@ void printDec(byte *buffer, byte bufferSize) {
 
   void clearUID()
   {
-    display.setTextColor(BLACK); // or BLACK);
-    display.setTextSize(1);
-    display.setCursor(0,10); 
-    display.print("NASA: ");
-    display.setCursor(30,10); 
-    display.print(uidString);
+    
+    display.clearDisplay();
     display.display();
   }
 
@@ -144,23 +152,24 @@ void printDec(byte *buffer, byte bufferSize) {
     display.print("NASA: ");
     display.setCursor(30,line); 
     display.print(uidString);
+
+    display.setCursor(0,line+10); 
+    display.print("Top view of enclosed Bioculture System cassette. Image courtesy of Tissue Genesis, Inc ");
     display.display();
   }
-
   void printUnlockMessage()
   {
     display.display();
     display.setTextColor(BLACK); // or BLACK);
     display.setTextSize(1);
     display.setCursor(10,0);
-     
     display.print("Personal Display");
     display.display();
     
     display.setTextColor(WHITE); // or BLACK);
     display.setTextSize(1);
     display.setCursor(10,0); 
-    display.print("Rack 6");
+    display.print("");
     display.display();
     
     delay(2000);
@@ -168,7 +177,7 @@ void printDec(byte *buffer, byte bufferSize) {
     display.setTextColor(BLACK); // or BLACK);
     display.setTextSize(1);
     display.setCursor(10,0); 
-    display.print("Rack 6");
+    display.print("");
 
     display.setTextColor(WHITE); // or BLACK);
     display.setTextSize(1);
@@ -176,7 +185,6 @@ void printDec(byte *buffer, byte bufferSize) {
     display.print("Personal Display");
     display.display();
   }
-
 
 
 
