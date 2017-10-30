@@ -8,12 +8,7 @@ int scrollDownFlag = 0;
 
 #define OLED_RESET LED_BUILTIN
 Adafruit_SSD1306 display(OLED_RESET);
-#define XPOS 0
-#define YPOS 1
 
-#define ANALOG_X A0
-#define ANALOG_Y A1
-#define ANALOG_Z A2
 #define SS_PIN D4
 #define RST_PIN D3
  
